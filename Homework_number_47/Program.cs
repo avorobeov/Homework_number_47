@@ -104,7 +104,7 @@ namespace Homework_number_47
 
         public Platoon()
         {
-            Create();
+            CreateListSoldier();
         }
 
         public int Capacity => _soldiers.Count;
@@ -136,7 +136,7 @@ namespace Homework_number_47
             Console.WriteLine($"В взводе ({Capacity}) солдат");
         }
 
-        private void Create()
+        private void CreateListSoldier()
         {
             _soldiers = new List<Soldier>();
 
