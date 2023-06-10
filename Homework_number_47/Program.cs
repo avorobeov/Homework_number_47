@@ -58,15 +58,16 @@ namespace Homework_number_47
     class Soldier
     {
         private Random _random = new Random();
+
         private int _armour;
-        
+
         public Soldier()
         {
             Create();
         }
 
         public int Damage { get; private set; }
-        public  int Health { get; private set; }
+        public int Health { get; private set; }
 
         public void Attack(Soldier soldier)
         {
@@ -134,6 +135,11 @@ namespace Homework_number_47
             return false;
         }
 
+        public void ShowInfo()
+        {
+            Console.WriteLine($"В взводе ({Capacity}) солдат");
+        }
+
         private void Create()
         {
             _soldiers = new List<Soldier>();
@@ -161,8 +167,8 @@ namespace Homework_number_47
             Thread.Sleep(100);
             _secondPlatoon = new Platoon();
 
-            ShowInfoPlatoon(_firstPlatoon);
-            ShowInfoPlatoon(_secondPlatoon);
+            _firstPlatoon.ShowInfo();
+            _secondPlatoon.ShowInfo();
 
             isWhetherReadyBattle = true;
         }
@@ -181,8 +187,15 @@ namespace Homework_number_47
                         firstSoldier.Attack(secondSoldier);
                         secondSoldier.Attack(firstSoldier);
 
-                        _firstPlatoon.TryDeleteSoldier(firstSoldier);
-                        _secondPlatoon.TryDeleteSoldier(secondSoldier);
+                        if (_firstPlatoon.TryDeleteSoldier(firstSoldier) == true)
+                        {
+                            Console.WriteLine("Солдат первого взвода убит!");
+                        }
+
+                        if (_secondPlatoon.TryDeleteSoldier(secondSoldier) == true)
+                        {
+                            Console.WriteLine("Солдат второго взвода убит!");
+                        }
                     }
                 }
 
@@ -203,11 +216,6 @@ namespace Homework_number_47
             {
                 Console.WriteLine("Вы не готовы к бою");
             }
-        }
-
-        private void ShowInfoPlatoon(Platoon platoon)
-        {
-            Console.WriteLine($"В первом взводе ({platoon.Capacity}) солдат");
         }
 
         private void ShowWinner(string winner)
