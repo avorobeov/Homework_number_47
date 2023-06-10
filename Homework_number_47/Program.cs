@@ -59,7 +59,7 @@ namespace Homework_number_47
 
         public Soldier()
         {
-            Create();
+            GenerateCharacteristics();
         }
 
         public int Damage { get; private set; }
@@ -80,7 +80,7 @@ namespace Homework_number_47
             }
         }
 
-        private void Create()
+        private void GenerateCharacteristics()
         {
             int minQuantityDamage = 10;
             int maxQuantityDamage = 20;
