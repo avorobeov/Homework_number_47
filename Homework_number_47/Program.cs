@@ -23,7 +23,7 @@ namespace Homework_number_47
 
             while (isExit == false)
             {
-                Console.WriteLine($"\n\nДля того что бы сгенерировать отряды нажмите: {CommandCreatePlatoon}\n" +
+                Console.WriteLine($"\n\nДля того что бы подготовить отряды нажмите: {CommandCreatePlatoon}\n" +
                                   $"Для того что бы начать бой нажмите:{CommandStartFight}\n" +
                                   $"Для того что бы выйти нажмите: {CommandExit}\n");
 
@@ -32,7 +32,7 @@ namespace Homework_number_47
                 switch (userInput)
                 {
                     case CommandCreatePlatoon:
-                        battlefield.CreatePlatoon();
+                        battlefield.PreparePlatoon();
                         break;
 
                     case CommandStartFight:
@@ -57,13 +57,12 @@ namespace Homework_number_47
 
     class Soldier
     {
+        private Random _random = new Random();
         private int _armour;
         
-        public Soldier(int damage, int armour, int health)
+        public Soldier()
         {
-            Damage = damage;
-            _armour = armour;
-            Health = health;
+            Create();
         }
 
         public int Damage { get; private set; }
@@ -79,7 +78,25 @@ namespace Homework_number_47
             if (damage > 0 && damage > _armour)
             {
                 Health -= damage - _armour;
+
+                Console.WriteLine($"Солдат получил урон: -{damage} HP");
             }
+        }
+
+        private void Create()
+        {
+            int minQuantityDamage = 10;
+            int maxQuantityDamage = 20;
+
+            int minQuantityArmour = 7;
+            int maxQuantityArmour = 10;
+
+            int minQuantityHealth = 50;
+            int maxQuantityHealth = 100;
+
+            Damage = _random.Next(minQuantityDamage, maxQuantityDamage);
+            _armour = _random.Next(minQuantityArmour, maxQuantityArmour);
+            Health = _random.Next(minQuantityHealth, maxQuantityHealth);
         }
     }
 
@@ -88,59 +105,61 @@ namespace Homework_number_47
         private Random _random = new Random();
         private List<Soldier> _soldiers;
 
-        public Platoon(List<Soldier> soldiers)
+        public Platoon()
         {
-            _soldiers = soldiers;
+            Create();
         }
 
-        public int QuantitySoldier => _soldiers.Count;
+        public int Capacity => _soldiers.Count;
 
-        public void Attack(Platoon platoon)
+        public Soldier GetSoldier()
         {
-            if (platoon.QuantitySoldier > 0 && _soldiers.Count > 0)
+            if (Capacity > 0)
             {
-                platoon.TakeDamage(_random.Next(0, platoon.QuantitySoldier), _soldiers[_random.Next(0, _soldiers.Count)].Damage);
+                return _soldiers[_random.Next(0, Capacity)];
             }
+
+            return null;
         }
 
-        public void TakeDamage(int quantitySoldier, int damage)
+        public bool TryDeleteSoldier(Soldier soldier)
         {
-            if (quantitySoldier <= _soldiers.Count)
+            if (soldier.Health <= 0)
             {
-                Soldier soldiers = _soldiers[quantitySoldier];
-                soldiers.TakeDamage(damage);
+                _soldiers.Remove(soldier);
 
-                if (soldiers.Health <= 0)
-                {
-                    DeleteSoldier(soldiers);
-
-                    Console.WriteLine("Солдат был убит");
-                }
-                else
-                {
-                    Console.WriteLine($"Солдат получил урон: -{damage} XP");
-                }
+                return true;
             }
+
+            return false;
         }
 
-        private void DeleteSoldier(Soldier soldier)
+        private void Create()
         {
-            _soldiers.Remove(soldier);
+            _soldiers = new List<Soldier>();
+
+            int ninQuantitySoldiers = 5;
+            int maxQuantitySoldiers = 25;
+
+            for (int i = 0; i < _random.Next(ninQuantitySoldiers, maxQuantitySoldiers); i++)
+            {
+                _soldiers.Add(new Soldier());
+            }
         }
     }
 
     class Battlefield
     {
-        private Random _random = new Random();
         private Platoon _firstPlatoon;
         private Platoon _secondPlatoon;
 
         private bool isWhetherReadyBattle = false;
 
-        public void CreatePlatoon()
+        public void PreparePlatoon()
         {
-            _firstPlatoon = new Platoon(CreateSoldiers());
-            _secondPlatoon = new Platoon(CreateSoldiers());
+            _firstPlatoon = new Platoon();
+            Thread.Sleep(100);
+            _secondPlatoon = new Platoon();
 
             ShowInfoPlatoon(_firstPlatoon);
             ShowInfoPlatoon(_secondPlatoon);
@@ -152,21 +171,30 @@ namespace Homework_number_47
         {
             if (isWhetherReadyBattle == true)
             {
-                while (_firstPlatoon.QuantitySoldier > 0 && _secondPlatoon.QuantitySoldier > 0)
+                while (_firstPlatoon.Capacity > 0 && _secondPlatoon.Capacity > 0)
                 {
-                    _firstPlatoon.Attack(_secondPlatoon);
-                    _secondPlatoon.Attack(_firstPlatoon);
+                    Soldier firstSoldier = _firstPlatoon.GetSoldier();
+                    Soldier secondSoldier = _secondPlatoon.GetSoldier();
+
+                    if (firstSoldier != null && secondSoldier != null)
+                    {
+                        firstSoldier.Attack(secondSoldier);
+                        secondSoldier.Attack(firstSoldier);
+
+                        _firstPlatoon.TryDeleteSoldier(firstSoldier);
+                        _secondPlatoon.TryDeleteSoldier(secondSoldier);
+                    }
                 }
 
-                if (_firstPlatoon.QuantitySoldier <= 0 && _secondPlatoon.QuantitySoldier <= 0)
+                if (_firstPlatoon.Capacity <= 0 && _secondPlatoon.Capacity <= 0)
                 {
                     Console.WriteLine($"\n\n К сожалению мы не смогли определить победителя поединок закончился ничей");
                 }
-                else if (_secondPlatoon.QuantitySoldier <= 0)
+                else if (_secondPlatoon.Capacity <= 0)
                 {
                     ShowWinner("Первый отряд победил");
                 }
-                else if (_firstPlatoon.QuantitySoldier <= 0)
+                else if (_firstPlatoon.Capacity <= 0)
                 {
                     ShowWinner("Второй отряд победил");
                 }
@@ -177,33 +205,9 @@ namespace Homework_number_47
             }
         }
 
-        private List<Soldier> CreateSoldiers()
-        {
-            List<Soldier> soldiers = new List<Soldier>();
-
-            int ninQuantitySoldiers = 5;
-            int maxQuantitySoldiers = 25;
-
-            int minQuantityDamage = 10;
-            int maxQuantityDamage = 20;
-
-            int minQuantityArmour = 7;
-            int maxQuantityArmour = 10;
-
-            int minQuantityHealth = 50;
-            int maxQuantityHealth = 100;
-
-            for (int i = 0; i < _random.Next(ninQuantitySoldiers, maxQuantitySoldiers); i++)
-            {
-                soldiers.Add(new Soldier(_random.Next(minQuantityDamage, maxQuantityDamage), _random.Next(minQuantityArmour, maxQuantityArmour), _random.Next(minQuantityHealth, maxQuantityHealth)));
-            }
-
-            return soldiers;
-        }
-
         private void ShowInfoPlatoon(Platoon platoon)
         {
-            Console.WriteLine($"В первом взводе ({platoon.QuantitySoldier}) солдат");
+            Console.WriteLine($"В первом взводе ({platoon.Capacity}) солдат");
         }
 
         private void ShowWinner(string winner)
