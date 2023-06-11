@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 
 namespace Homework_number_47
 {
@@ -28,7 +27,7 @@ namespace Homework_number_47
                 switch (userInput)
                 {
                     case CommandCreatePlatoon:
-                        battlefield.PreparePlatoon();
+                        battlefield.CreatePlatoon();
                         break;
 
                     case CommandStartFight:
@@ -53,7 +52,7 @@ namespace Homework_number_47
 
     class Soldier
     {
-        private Random _random = new Random();
+        private static Random _random = new Random();
 
         private int _armour;
 
@@ -99,7 +98,7 @@ namespace Homework_number_47
 
     class Platoon
     {
-        private Random _random = new Random();
+        private static Random _random = new Random();
         private List<Soldier> _soldiers;
 
         public Platoon()
@@ -157,10 +156,9 @@ namespace Homework_number_47
 
         private bool isWhetherReadyBattle = false;
 
-        public void PreparePlatoon()
+        public void CreatePlatoon()
         {
             _firstPlatoon = new Platoon();
-            Thread.Sleep(100);
             _secondPlatoon = new Platoon();
 
             _firstPlatoon.ShowInfo();
@@ -207,6 +205,8 @@ namespace Homework_number_47
                 {
                     ShowWinner("Второй отряд победил");
                 }
+
+                isWhetherReadyBattle = false;
             }
             else
             {
