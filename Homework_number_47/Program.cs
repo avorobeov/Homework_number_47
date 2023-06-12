@@ -27,7 +27,7 @@ namespace Homework_number_47
                 switch (userInput)
                 {
                     case CommandCreatePlatoon:
-                        battlefield.CreatePlatoon();
+                        battlefield.CreatePlatoons();
                         break;
 
                     case CommandStartFight:
@@ -106,19 +106,19 @@ namespace Homework_number_47
             CreateListSoldier();
         }
 
-        public int Capacity => _soldiers.Count;
+        public int SoldiersCount => _soldiers.Count;
 
         public Soldier GetSoldier()
         {
-            if (Capacity > 0)
+            if (SoldiersCount > 0)
             {
-                return _soldiers[_random.Next(0, Capacity)];
+                return _soldiers[_random.Next(0, SoldiersCount)];
             }
 
             return null;
         }
 
-        public bool TryDeleteSoldier(Soldier soldier)
+        public bool TryDeleteDeadSoldier(Soldier soldier)
         {
             if (soldier.Health <= 0)
             {
@@ -132,17 +132,18 @@ namespace Homework_number_47
 
         public void ShowInfo()
         {
-            Console.WriteLine($"В взводе ({Capacity}) солдат");
+            Console.WriteLine($"В взводе ({SoldiersCount}) солдат");
         }
 
         private void CreateListSoldier()
         {
             _soldiers = new List<Soldier>();
 
-            int ninQuantitySoldiers = 5;
+            int minQuantitySoldiers = 5;
             int maxQuantitySoldiers = 25;
+            int quantitySoldiers = _random.Next(minQuantitySoldiers, maxQuantitySoldiers);
 
-            for (int i = 0; i < _random.Next(ninQuantitySoldiers, maxQuantitySoldiers); i++)
+            for (int i = 0; i < quantitySoldiers; i++)
             {
                 _soldiers.Add(new Soldier());
             }
@@ -154,9 +155,9 @@ namespace Homework_number_47
         private Platoon _firstPlatoon;
         private Platoon _secondPlatoon;
 
-        private bool isWhetherReadyBattle = false;
+        private bool _isWhetherReadyBattle = false;
 
-        public void CreatePlatoon()
+        public void CreatePlatoons()
         {
             _firstPlatoon = new Platoon();
             _secondPlatoon = new Platoon();
@@ -164,14 +165,14 @@ namespace Homework_number_47
             _firstPlatoon.ShowInfo();
             _secondPlatoon.ShowInfo();
 
-            isWhetherReadyBattle = true;
+            _isWhetherReadyBattle = true;
         }
 
         public void StartFight()
         {
-            if (isWhetherReadyBattle == true)
+            if (_isWhetherReadyBattle == true)
             {
-                while (_firstPlatoon.Capacity > 0 && _secondPlatoon.Capacity > 0)
+                while (_firstPlatoon.SoldiersCount > 0 && _secondPlatoon.SoldiersCount > 0)
                 {
                     Soldier firstSoldier = _firstPlatoon.GetSoldier();
                     Soldier secondSoldier = _secondPlatoon.GetSoldier();
@@ -181,32 +182,32 @@ namespace Homework_number_47
                         firstSoldier.Attack(secondSoldier);
                         secondSoldier.Attack(firstSoldier);
 
-                        if (_firstPlatoon.TryDeleteSoldier(firstSoldier) == true)
+                        if (_firstPlatoon.TryDeleteDeadSoldier(firstSoldier) == true)
                         {
                             Console.WriteLine("Солдат первого взвода убит!");
                         }
 
-                        if (_secondPlatoon.TryDeleteSoldier(secondSoldier) == true)
+                        if (_secondPlatoon.TryDeleteDeadSoldier(secondSoldier) == true)
                         {
                             Console.WriteLine("Солдат второго взвода убит!");
                         }
                     }
                 }
 
-                if (_firstPlatoon.Capacity <= 0 && _secondPlatoon.Capacity <= 0)
+                if (_firstPlatoon.SoldiersCount <= 0 && _secondPlatoon.SoldiersCount <= 0)
                 {
                     Console.WriteLine($"\n\n К сожалению мы не смогли определить победителя поединок закончился ничей");
                 }
-                else if (_secondPlatoon.Capacity <= 0)
+                else if (_secondPlatoon.SoldiersCount <= 0)
                 {
                     ShowWinner("Первый отряд победил");
                 }
-                else if (_firstPlatoon.Capacity <= 0)
+                else if (_firstPlatoon.SoldiersCount <= 0)
                 {
                     ShowWinner("Второй отряд победил");
                 }
 
-                isWhetherReadyBattle = false;
+                _isWhetherReadyBattle = false;
             }
             else
             {
